@@ -2,13 +2,11 @@
 
 require_once 'vendor/autoload.php';
 
+use config\Settings;
 use Telegram\Bot\Api;
 
-$token = '?';
-$weather_token = '?';
-$weather_url = "https://api.openweathermap.org/data/2.5/weather?appid={$weather_token}&units=metric&lang=ru";
-
-$telegram = new Api($token);
+$settings = new Settings();
+$telegram = new Api($settings->getToken());
 
 $update = $telegram->getWebhookUpdates();
 
@@ -31,12 +29,12 @@ if ($text == '/start') {
 } elseif (!empty($text)) {
     $weather_url .= "&q={$text}";
 
-    $res = json_decode(file_get_contents($weather_url));
+    $res = json_decode(file_get_contents($settings->getWeatherUrl()));
 
 } elseif (isset($update['message']['location'])) {
     $weather_url .= "&lat={$update['message']['location']['latitude']}{$text}&lon={$update['message']['location']['longitude']}";
 
-    $res = json_decode(file_get_contents($weather_url));
+    $res = json_decode(file_get_contents($settings->getWeatherUrl()));
 
 } else {
     $response = $telegram->sendMessage([
